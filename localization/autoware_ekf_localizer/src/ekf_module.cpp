@@ -171,6 +171,13 @@ double EKFModule::get_yaw_bias() const
   return kalman_filter_.getLatestX()(IDX::YAWB);
 }
 
+std::array<double, 3> EKFModule::get_simple_1d_filter_kalman_gains() const
+{
+  return {
+    z_filter_.get_last_kalman_gain(), roll_filter_.get_last_kalman_gain(),
+    pitch_filter_.get_last_kalman_gain()};
+}
+
 size_t EKFModule::find_closest_delay_time_index(double target_value) const
 {
   // If target_value is too large, return last index + 1

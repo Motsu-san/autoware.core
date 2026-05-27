@@ -30,6 +30,8 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 
+#include <array>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -57,6 +59,7 @@ public:
     x_ = 0;
     var_ = 1e9;
     proc_var_x_c_ = 0.0;
+    last_kalman_gain_ = std::numeric_limits<double>::quiet_NaN();
   };
   void init(const double init_obs, const double obs_var)
   {
@@ -76,19 +79,21 @@ public:
     var_ = var_ + proc_var_x_d;
 
     // Update step
-    double kalman_gain = var_ / (var_ + obs_var);
-    x_ = x_ + kalman_gain * (obs - x_);
-    var_ = (1 - kalman_gain) * var_;
+    last_kalman_gain_ = var_ / (var_ + obs_var);
+    x_ = x_ + last_kalman_gain_ * (obs - x_);
+    var_ = (1 - last_kalman_gain_) * var_;
   };
   void set_proc_var(const double proc_var) { proc_var_x_c_ = proc_var; }
   [[nodiscard]] double get_x() const { return x_; }
   [[nodiscard]] double get_var() const { return var_; }
+  [[nodiscard]] double get_last_kalman_gain() const { return last_kalman_gain_; }
 
 private:
   bool initialized_;
   double x_;
   double var_;
   double proc_var_x_c_;
+  double last_kalman_gain_;
 };
 
 class EKFModule
@@ -113,6 +118,8 @@ public:
   [[nodiscard]] double get_yaw_bias() const;
   [[nodiscard]] std::array<double, 36> get_current_pose_covariance() const;
   [[nodiscard]] std::array<double, 36> get_current_twist_covariance() const;
+  /** @brief Last Kalman gains from z, roll, pitch Simple1DFilter updates [z, roll, pitch]. */
+  [[nodiscard]] std::array<double, 3> get_simple_1d_filter_kalman_gains() const;
 
   [[nodiscard]] size_t find_closest_delay_time_index(double target_value) const;
   void accumulate_delay_time(const double dt);

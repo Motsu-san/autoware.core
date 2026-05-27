@@ -17,6 +17,7 @@
   <arg name="output_twist_name" default="ekf_twist"/>
   <arg name="output_twist_with_covariance_name" default="ekf_twist_with_covariance"/>
   <arg name="output_processing_time_ms" default="debug/processing_time_ms"/>
+  <arg name="output_simple_1d_filter_kalman_gain" default="debug/simple_1d_filter_kalman_gain"/>
 
   <node pkg="autoware_ekf_localizer" exec="autoware_ekf_localizer_node" output="both">
     <remap from="in_pose_with_covariance" to="$(var input_pose_with_cov_name)"/>
@@ -34,6 +35,7 @@
     <remap from="ekf_twist" to="$(var output_twist_name)"/>
     <remap from="ekf_twist_with_covariance" to="$(var output_twist_with_covariance_name)"/>
     <remap from="debug/processing_time_ms" to="$(var output_processing_time_ms)"/>
+    <remap from="debug/simple_1d_filter_kalman_gain" to="$(var output_simple_1d_filter_kalman_gain)"/>
 
     <param from="$(var param_file)"/>
   </node>

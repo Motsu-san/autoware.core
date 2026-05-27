@@ -83,6 +83,9 @@ private:
   //!< @brief processing_time publisher
   rclcpp::Publisher<autoware_internal_debug_msgs::msg::Float64Stamped>::SharedPtr
     pub_processing_time_;
+  //!< @brief z, roll, pitch Simple1DFilter Kalman gains [z, roll, pitch]
+  rclcpp::Publisher<autoware_internal_debug_msgs::msg::Float64MultiArrayStamped>::SharedPtr
+    pub_simple_1d_filter_kalman_gain_;
   //!< @brief /diagnostics publisher (manual DiagnosticArray; same absolute topic as former
   //!< diagnostic_updater)
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr pub_diagnostics_;

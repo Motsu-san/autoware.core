@@ -81,6 +81,9 @@ EKFLocalizer::EKFLocalizer(const rclcpp::NodeOptions & node_options)
     "ekf_biased_pose_with_covariance", 1);
   pub_processing_time_ = create_publisher<autoware_internal_debug_msgs::msg::Float64Stamped>(
     "debug/processing_time_ms", 1);
+  pub_simple_1d_filter_kalman_gain_ =
+    create_publisher<autoware_internal_debug_msgs::msg::Float64MultiArrayStamped>(
+      "debug/simple_1d_filter_kalman_gain", 1);
   pub_diagnostics_ = create_publisher<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 1);
   diagnostics_publish_timer_ = rclcpp::create_timer(
     this, get_clock(), rclcpp::Duration::from_seconds(params_.diagnostics_publish_period),
@@ -292,6 +295,18 @@ void EKFLocalizer::timer_callback()
     autoware_internal_debug_msgs::build<autoware_internal_debug_msgs::msg::Float64Stamped>()
       .stamp(current_time)
       .data(elapsed_time));
+
+  if (params_.show_debug_info) {
+    const auto kalman_gains = ekf_module_->get_simple_1d_filter_kalman_gains();
+    autoware_internal_debug_msgs::msg::Float64MultiArrayStamped kalman_gain_msg;
+    kalman_gain_msg.stamp = current_time;
+    kalman_gain_msg.layout.dim.resize(1);
+    kalman_gain_msg.layout.dim[0].label = "z_roll_pitch";
+    kalman_gain_msg.layout.dim[0].size = 3;
+    kalman_gain_msg.layout.dim[0].stride = 3;
+    kalman_gain_msg.data = {kalman_gains[0], kalman_gains[1], kalman_gains[2]};
+    pub_simple_1d_filter_kalman_gain_->publish(kalman_gain_msg);
+  }
 }
 
 /*
